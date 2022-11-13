@@ -9,13 +9,13 @@ import { DocumentService } from '../document.service';
   styleUrls: ['./document-list.component.css']
 })
 export class DocumentListComponent implements OnInit, OnDestroy {
-  documents: Document[] = []
+  documents: Document[] = [];
   private subscription: Subscription;
 
   constructor(private documentService: DocumentService) { }
 
   ngOnInit(){
-    this.documents = this.documentService.getDocuments();
+    this.documentService.getDocuments();
 
     this.documentService.documentChangedEvent.subscribe(
       (documents: Document[]) => {
