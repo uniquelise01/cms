@@ -21,7 +21,7 @@ export class ContactService {
 
     getContacts() {
         this.http
-            .get("https://cms-wdd430-c5950-default-rtdb.firebaseio.com/contacts.json")
+            .get<Contact[]>("https://cms-wdd430-c5950-default-rtdb.firebaseio.com/contacts.json")
             .subscribe(
                 (contacts: Contact[]) => {
                    this.contacts = contacts;
@@ -85,8 +85,11 @@ export class ContactService {
         }
         
         this.maxContactId++;
-        newContact.id = String(this.maxContactId);
+        newContact.id = this.maxContactId.toString();
         this.contacts.push(newContact);
+
+        // console.log(this.contacts);
+        // return;
         
         this.storeContacts();
     }
