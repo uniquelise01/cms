@@ -1,0 +1,9 @@
+db.contacts.insertOne(
+{
+    "id": "101", 
+    "name": “Elise Mickle”, 
+    "email": “han19008@byui.edu”, 
+    "phone": “435-668-4203”, 
+    "imageUrl": "yourImageUrl.jpg”, 
+    "group": null
+})
