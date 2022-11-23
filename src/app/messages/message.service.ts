@@ -15,7 +15,7 @@ export class MessageService {
 
   getMessages() {
     this.http
-      .get("https://cms-wdd430-c5950-default-rtdb.firebaseio.com/messages.json")
+      .get("http://localhost:3000/messages")
       .subscribe(
         (messages: Message[]) => {
             this.messages = messages;
@@ -35,7 +35,7 @@ export class MessageService {
     const headers = new HttpHeaders({'Content-Type': 'application/json'});
 
     this.http
-        .put('https://cms-wdd430-c5950-default-rtdb.firebaseio.com/messages.json', messages, {
+        .put('http://localhost:3000/messages', messages, {
             headers: headers,
         })     
         .subscribe(() => {
@@ -48,9 +48,24 @@ export class MessageService {
   }
 
   addMessage(message: Message) {
-    this.messages.push(message);
-    
-    this.storeMessages();
+    if (!message) {
+      return;
+    }
+
+    message.id = '';
+
+    const headers = new HttpHeaders({'Content-Type': 'application/json'});
+
+    this.http.post<{ message: string, messages: Message }>('http://localhost:3000/messages',
+      message,
+      { headers: headers })
+      .subscribe(
+        (responseData) => {
+          // add new document to documents
+          this.messages.push(responseData.messages);
+          this.sortAndSend();
+        }
+      );
   }
 
   getMaxId(): number {
