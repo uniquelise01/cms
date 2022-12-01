@@ -13,15 +13,19 @@ export class MessageService {
 
   constructor(private http: HttpClient) {}
 
+  sortAndSend() {
+    //this.messages.sort((a, b) => a.id > b.id ? 1 : b.id > a.id ? -1 : 0);
+    this.messageChangedEvent.next(this.messages.slice());
+  }
+
   getMessages() {
     this.http
-      .get("http://localhost:3000/messages")
+      .get<{ message: string, messages: Message[]}>("http://localhost:3000/messages")
       .subscribe(
-        (messages: Message[]) => {
-            this.messages = messages;
-            this.maxMessageId = this.getMaxId();
-            this.messages.sort((a, b) => a.id > b.id ? 1 : b.id > a.id ? -1 : 0);
-            this.messageChangedEvent.next(this.messages.slice());
+        (messageData) => {
+            this.messages = messageData.messages;
+            //this.maxMessageId = this.getMaxId();
+            this.sortAndSend();
         },
         (error: any) => {
             console.log(error);
@@ -56,27 +60,30 @@ export class MessageService {
 
     const headers = new HttpHeaders({'Content-Type': 'application/json'});
 
-    this.http.post<{ message: string, messages: Message }>('http://localhost:3000/messages',
+    this.http.post<{ message: string, newmessage: Message }>('http://localhost:3000/messages',
       message,
       { headers: headers })
       .subscribe(
         (responseData) => {
           // add new document to documents
-          this.messages.push(responseData.messages);
+          message._id = responseData.newmessage._id;
+          message.id = responseData.newmessage.id;
+
+          this.messages.push(message);
           this.sortAndSend();
         }
       );
   }
 
-  getMaxId(): number {
-    let maxId = 0;
+  // getMaxId(): number {
+  //   let maxId = 0;
 
-    this.messages.forEach(message => {
-        const currentId = parseInt(message.id);
-        if (currentId > maxId){
-            maxId = currentId;
-        }
-    })
-    return maxId;
-  }
+  //   this.messages.forEach(message => {
+  //       const currentId = parseInt(message.id);
+  //       if (currentId > maxId){
+  //           maxId = currentId;
+  //       }
+  //   })
+  //   return maxId;
+  // }
 }

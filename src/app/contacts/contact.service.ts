@@ -19,22 +19,30 @@ export class ContactService {
         this.maxContactId = this.getMaxId();
     }
 
+    sortAndSend() {
+      this.contacts.sort((a, b) => a.name > b.name ? 1 : b.name > a.name ? -1 : 0);
+      this.contactListChangedEvent.next(this.contacts.slice());
+    }
+
     getContacts() {
         this.http
-            .get<Contact[]>("http://localhost:3000/contacts")
+            .get<{ message: string, contacts: Contact[]}>("http://localhost:3000/contacts/")
             .subscribe(
-                (contacts: Contact[]) => {
-                   this.contacts = contacts;
-                   this.maxContactId = this.getMaxId();
-                   this.contacts.sort((a, b) => a.name > b.name ? 1 : b.name > a.name ? -1 : 0);
-                   this.contactListChangedEvent.next(this.contacts.slice());
+                (responseData) => {
+                   this.contacts = responseData.contacts;
+                   this.sortAndSend();
                 },
                 (error: any) => {
                    console.log(error);
                 }
             );
     }
-
+    
+    getContact(id: string) {
+      return this.http.get<{ message: string, contact: Contact }>('http://localhost:3000/contacts/' + id);
+    }
+    
+    
     storeContacts() {
         let contacts = JSON.stringify(this.contacts);
         const headers = new HttpHeaders({'Content-Type': 'application/json'});
@@ -47,13 +55,8 @@ export class ContactService {
                 this.contactListChangedEvent.next(this.contacts.slice());
             }
             )
-            
     }
-
-    getContact(id: string): Contact {
-        return this.contacts.find((contact) => contact.id === id);
-    }
-
+    
     deleteContact(contact: Contact) {
 
         if (!contact) {

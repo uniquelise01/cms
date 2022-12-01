@@ -23,6 +23,27 @@ router.get('/', (req, res, next) => {
         });
  });
 
+ router.get('/:id', (req, res, next) => {
+    Contact.findOne({
+        "id": req.params.id
+    })
+        .populate('group')
+        .then(contact => {
+            res
+                .status(200)
+                .json({
+                    message: 'Contacts fetched successfully!',
+                    contact: contact
+                });
+        })
+        .catch(error => {
+            res.status(500).json({
+                message: 'An error occured',
+                error: error
+            });
+        });
+ });
+
 router.post('/', (req, res, next) => {
     const maxContactId = sequenceGenerator.nextId("contacts");
   

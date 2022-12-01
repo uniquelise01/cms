@@ -16,15 +16,19 @@ export class DocumentService {
 
     constructor(private http: HttpClient) {}
 
+    sortAndSend() {
+        this.documents.sort((a, b) => a.id > b.id ? 1 : b.id > a.id ? -1 : 0);
+        this.documentListChangedEvent.next(this.documents.slice());
+      }
+
     getDocuments() {
         this.http
-            .get("http://localhost:3000/documents")
+            .get<{message: string, documents: Document[]}>("http://localhost:3000/documents")
             .subscribe(
-                (documents: Document[]) => {
-                   this.documents = documents;
+                (documentData) => {
+                   this.documents = documentData.documents;
                    this.maxDocumentId = this.getMaxId();
-                   this.documents.sort((a, b) => a.name > b.name ? 1 : b.name > a.name ? -1 : 0);
-                   this.documentListChangedEvent.next(this.documents.slice());
+                   this.sortAndSend();
                 },
                 (error: any) => {
                    console.log(error);
@@ -32,20 +36,20 @@ export class DocumentService {
             );
     }
 
-    storeDocuments() {
-        let documents = JSON.stringify(this.documents);
-        const headers = new HttpHeaders({'Content-Type': 'application/json'});
+    // storeDocuments() {
+    //     let documents = JSON.stringify(this.documents);
+    //     const headers = new HttpHeaders({'Content-Type': 'application/json'});
 
-        this.http
-            .put('http://localhost:3000/documents', documents, {
-                headers: headers,
-            })
-            .subscribe(() => {
-                this.documentListChangedEvent.next(this.documents.slice());
-            }
-            )
+    //     this.http
+    //         .put('http://localhost:3000/documents', documents, {
+    //             headers: headers,
+    //         })
+    //         .subscribe(() => {
+    //             this.documentListChangedEvent.next(this.documents.slice());
+    //         }
+    //         )
             
-    }
+    // }
 
     getDocument(id: string){
         return this.documents.find((document) => document.id === id);
